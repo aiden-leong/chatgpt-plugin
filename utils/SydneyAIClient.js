@@ -424,8 +424,8 @@ export default class SydneyAIClient {
             author: 'user',
             inputMethod: 'Keyboard',
             text: message,
-            messageType
-            // messageType: 'SearchQuery'
+            // messageType
+            messageType: 'Chat'
           },
           conversationSignature,
           participant: {
