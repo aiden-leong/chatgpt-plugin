@@ -9,6 +9,7 @@ import HttpsProxyAgent from 'https-proxy-agent'
 import { Config, pureSydneyInstruction } from './config.js'
 import { formatDate, getMasterQQ, isCN } from './common.js'
 import delay from 'delay'
+import moment from 'moment-timezone'
 
 if (!globalThis.fetch) {
   globalThis.fetch = fetch
@@ -419,7 +420,7 @@ export default class SydneyAIClient {
               }
             ],
             // "timestamp":"2023-04-03T16:13:27+08:00",
-            timestamp: new Date().toISOString(),
+            timestamp: moment().tz("Asia/Shanghai").format(),
             author: 'user',
             inputMethod: 'Keyboard',
             text: message,
