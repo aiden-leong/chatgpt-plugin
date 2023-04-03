@@ -524,8 +524,10 @@ export class chatgpt extends plugin {
       prompt = e.raw_message.trim()
       if (e.isGroup) {
         let me = e.group.pickMember(Bot.uin)
-        let card = me.card || me.nickname
+        let card = me.card
+        let nickname = me.nickname
         prompt = prompt.replace(`@${card}`, '').trim()
+        prompt = prompt.replace(`@${nickname}`, '').trim()
       }
     } else {
       let ats = e.message.filter(m => m.type === 'at')
@@ -747,7 +749,7 @@ export class chatgpt extends plugin {
           } else {
             previousConversation.bingToken = ''
           }
-        } else {
+        } else if (chatMessage.id) {
           previousConversation.parentMessageId = chatMessage.id
         }
         if (Config.debug) {
@@ -767,9 +769,9 @@ export class chatgpt extends plugin {
       }
       // 分离内容和情绪
       if (Config.sydneyMood) {
-        let temp_response = completeJSON(response)
-        if (temp_response.text) response = temp_response.text
-        if (temp_response.mood) mood = temp_response.mood
+        let tempResponse = completeJSON(response)
+        if (tempResponse.text) response = tempResponse.text
+        if (tempResponse.mood) mood = tempResponse.mood
       } else {
         mood = ''
       }
@@ -798,33 +800,27 @@ export class chatgpt extends plugin {
         })
       }
       if (useTTS) {
-        if (Config.ttsSpace && response.length <= Config.ttsAutoFallbackThreshold) {
-          let audioErr = false
-          try {
-            let wav = await generateAudio(response, speaker, '中日混合（中文用[ZH][ZH]包裹起来，日文用[JA][JA]包裹起来）')
-            await e.reply(segment.record(wav))
-          } catch (err) {
-            await this.reply('合成语音发生错误，我用文本回复你吧')
-            audioErr = true
-          }
-          if (Config.alsoSendText || audioErr) {
-            await this.reply(await convertFaces(response, Config.enableRobotAt, e), e.isGroup)
-            if (quotemessage.length > 0) {
-              this.reply(await makeForwardMsg(this.e, quotemessage))
-            }
-            if (Config.enableSuggestedResponses && chatMessage.suggestedResponses) {
-              this.reply(`建议的回复：\n${chatMessage.suggestedResponses}`)
-            }
-          }
-        } else {
-          await this.reply('你没有配置转语音API或者文字太长了哦，我用文本回复你吧')
-          await this.reply(`${response}`, e.isGroup)
+        // 先把文字回复发出去，避免过久等待合成语音
+        if (Config.alsoSendText) {
+          await this.reply(await convertFaces(response, Config.enableRobotAt, e), e.isGroup)
           if (quotemessage.length > 0) {
             this.reply(await makeForwardMsg(this.e, quotemessage))
           }
           if (Config.enableSuggestedResponses && chatMessage.suggestedResponses) {
             this.reply(`建议的回复：\n${chatMessage.suggestedResponses}`)
           }
+        }
+        // 过滤‘括号’的内容不读，减少违和感
+        let ttsResponse = response.replace(/[(（\[{<【《「『【〖【【【“‘'"@][^()（）\]}>】》」』】〗】】”’'@]*[)）\]}>】》」』】〗】】”’'@]/g, '')
+        if (Config.ttsSpace && ttsResponse.length <= Config.ttsAutoFallbackThreshold) {
+          try {
+            let wav = await generateAudio(ttsResponse, speaker, '中日混合（中文用[ZH][ZH]包裹起来，日文用[JA][JA]包裹起来）')
+            await e.reply(segment.record(wav))
+          } catch (err) {
+            await this.reply('合成语音发生错误~')
+          }
+        } else {
+          await this.reply('你没有配置转语音API或者文字太长了哦')
         }
       } else if (userSetting.usePicture || (Config.autoUsePicture && response.length > Config.autoUsePictureThreshold)) {
         // todo use next api of chatgpt to complete incomplete respoonse
@@ -1073,7 +1069,7 @@ export class chatgpt extends plugin {
                   opt.botName = e.isGroup ? (e.group.pickMember(Bot.uin).card || e.group.pickMember(Bot.uin).nickname) : Bot.nickname
                   let master = (await getMasterQQ())[0]
                   if (master && e.group) {
-                    opt.masterName = e.group.pickMember(master).card || e.group.pickMember(master).nickname
+                    opt.masterName = e.group.pickMember(parseInt(master)).card || e.group.pickMember(parseInt(master)).nickname
                   }
                   if (master && !e.group) {
                     opt.masterName = Bot.getFriendList().get(master)?.nickname
@@ -1130,6 +1126,7 @@ export class chatgpt extends plugin {
             errorMessage = ''
             break
           } catch (error) {
+            logger.error(error)
             const message = error?.message || error?.data?.message || error || '出错了'
             if (message && message.indexOf('限流') > -1) {
               throttledTokens.push(bingToken)
