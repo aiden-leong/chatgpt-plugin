@@ -9,6 +9,7 @@ import HttpsProxyAgent from 'https-proxy-agent'
 import { Config, pureSydneyInstruction } from './config.js'
 import { formatDate, getMasterQQ, isCN } from './common.js'
 import delay from 'delay'
+import moment from 'moment'
 
 if (!globalThis.fetch) {
   globalThis.fetch = fetch
@@ -79,26 +80,30 @@ export default class SydneyAIClient {
     await this.initCache()
     const fetchOptions = {
       headers: {
-        accept: 'application/json',
-        'accept-language': 'en-US,en;q=0.9',
-        'content-type': 'application/json',
-        'sec-ch-ua': '"Chromium";v="112", "Microsoft Edge";v="112", "Not:A-Brand";v="99"',
-        'sec-ch-ua-arch': '"x86"',
-        'sec-ch-ua-bitness': '"64"',
-        'sec-ch-ua-full-version': '"112.0.1722.7"',
-        'sec-ch-ua-full-version-list': '"Chromium";v="112.0.5615.20", "Microsoft Edge";v="112.0.1722.7", "Not:A-Brand";v="99.0.0.0"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-model': '',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-ch-ua-platform-version': '"15.0.0"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-origin',
-        'x-ms-client-request-id': crypto.randomUUID(),
-        'x-ms-useragent': 'azsdk-js-api-client-factory/1.0.0-beta.1 core-rest-pipeline/1.10.0 OS/Win32',
+
+
+        "accept": "application/json",
+        "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+        "sec-ch-ua": "\"Microsoft Edge\";v=\"111\", \"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"111\"",
+        "sec-ch-ua-arch": "\"arm\"",
+        "sec-ch-ua-bitness": "\"64\"",
+        "sec-ch-ua-full-version": "\"111.0.1661.54\"",
+        "sec-ch-ua-full-version-list": "\"Microsoft Edge\";v=\"111.0.1661.54\", \"Not(A:Brand\";v=\"8.0.0.0\", \"Chromium\";v=\"111.0.5563.111\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-model": "\"\"",
+        "sec-ch-ua-platform": "\"macOS\"",
+        "sec-ch-ua-platform-version": "\"13.3.0\"",
+        "sec-fetch-dest": "document",
+        "sec-fetch-mode": "navigate",
+        "sec-fetch-site": "none",
+        "sec-fetch-user": "?1",
+        "upgrade-insecure-requests": "1",
+        "x-edge-shopping-flag": "1",
+        "x-forwarded-for": "1.1.1.1",
+
         cookie: this.opts.cookies || `_U=${this.opts.userToken}`,
-        Referer: 'https://www.bing.com/search?q=Bing+AI&showconv=1&FORM=hpcodx',
-        'Referrer-Policy': 'origin-when-cross-origin'
+    
+    
       }
     }
     if (this.opts.proxy) {
@@ -298,10 +303,10 @@ export default class SydneyAIClient {
               (Config.sydneyMood ? 'Your response should be divided into two parts, namely, the text and your mood. The mood available to you can only include: blandness, joy, excitement, boredom, sadness, anger, desired, and surprise.All content should be replied in this format {"text": "", "mood": ""}.All content except mood should be placed in text, It is important to ensure that the content you reply to can be parsed by json.' : ''),
               author: 'bot'
             },
-            {
-              text: `好的，我是${botName || 'Sydney'}，你的AI助手。`,
-              author: 'bot'
-            },
+            // {
+            //   text: `好的，我是${botName || 'Sydney'}，你的AI助手。`,
+            //   author: 'bot'
+            // },
             ...pm
           ]
         : undefined
@@ -313,10 +318,10 @@ export default class SydneyAIClient {
               (Config.sydneyMood ? 'Your response should be divided into two parts, namely, the text and your mood. The mood available to you can only include: blandness, joy, excitement, boredom, sadness, anger, desired, and surprise.All content should be replied in this format {"text": "", "mood": ""}.All content except mood should be placed in text, It is important to ensure that the content you reply to can be parsed by json.' : ''),
               author: 'bot'
             },
-            {
-              text: `好的，我是${Config.sydneyBrainWashName}。`,
-              author: 'bot'
-            },
+            // {
+            //   text: `好的，我是${Config.sydneyBrainWashName}。`,
+            //   author: 'bot'
+            // },
             ...pm
           ]
         : undefined
@@ -345,44 +350,77 @@ export default class SydneyAIClient {
             'responsible_ai_policy_235',
             'enablemm',
             toneOption,
-            'dtappid',
-            'cricinfo',
-            'cricinfov2',
-            'dv3sugg'
+
+            "clgalileo",
+            "gencontentv3",
+            "contentability",
+            "jbfv2",
+            "cachewriteext",
+            "e2ecachewrite",
+            "e2egcc",
+            "nodlcpcwrite",
+            "nointernalsugg",
+            "dv3sugg",
+          ],
+          allowedMessageTypes:[
+            "Chat",
+            "InternalSearchQuery",
+            "InternalSearchResult",
+            "Disengaged",
+            "InternalLoaderMessage",
+            "RenderCardRequest",
+            "AdsQuery",
+            "SemanticSerp",
+            "GenerateContentQuery",
+            "SearchQuery"
           ],
           sliceIds: [
-            '222dtappid',
-            '225cricinfo',
-            '224locals0'
+            "semserpsup-c",
+            "perfinst2tf",
+            "toneperf",
+            "accrngcf",
+            "chk1cf",
+            "fstldsydact",
+            "nocontfbk",
+            "sydpaycontrol",
+            "fixsacode",
+            "321slocs0",
+            "325content",
+            "324jbfv2",
+            "notigersccf",
+            "udsdserlc",
+            "udswebdesc2",
+            "329v3pwebtrunc",
+            "330sugg",
+            "chatgptsugg",
           ],
+          verbosity:"verbose",
           traceId: genRanHex(32),
           isStartOfSession: invocationId === 0,
           message: {
             locale: 'zh-CN',
             market: 'zh-CN',
-            region: 'HK',
+            region: 'AU',
             location: 'lat:47.639557;long:-122.128159;re=1000m;',
-            locationHints: [
+            locationHints:[
               {
+                country:"Australia",
+                state:"Victoria",
+                city:"Research",
+                zipcode:"3095",
+                timezoneoffset:10,
+                countryConfidence:8,
+                cityConfidence:5,
                 Center: {
-                  Latitude: 39.971031896331,
-                  Longitude: 116.33522679576237
+                  Latitude:-37.7114,
+                  Longitude:145.1663
                 },
-                RegionType: 2,
-                SourceType: 11
-              },
-              {
-                country: 'Hong Kong',
-                timezoneoffset: 8,
-                countryConfidence: 9,
-                Center: {
-                  Latitude: 22.15,
-                  Longitude: 114.1
-                },
-                RegionType: 2,
-                SourceType: 1
+                RegionType:2,
+                SourceType:1
               }
             ],
+            // "timestamp":"2023-04-03T16:13:27+08:00",
+            timestamp: moment().format(),
             author: 'user',
             inputMethod: 'Keyboard',
             text: message,
