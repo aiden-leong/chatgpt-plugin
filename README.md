@@ -49,7 +49,7 @@ Node.js >= 18 / Node.js >= 14(with node-fetch)
 推荐使用 git 进行安装，以方便后续升级。在 Yunzai-Bot 根目录夹打开终端，运行下述指令进行安装
 
 ```shell
-git clone --depth=1 https://github.com/ikechan8370/chatgpt-plugin.git ./plugins/chatgpt-plugin/
+git clone https://github.com/aiden-leong/chatgpt-plugin.git ./plugins/chatgpt-plugin/
 cd plugins/chatgpt-plugin
 pnpm i
 ```
